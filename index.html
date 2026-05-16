@@ -2,42 +2,42 @@
 <html>
 
 <head>
-  <meta charset="UTF-8">
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<meta charset="UTF-8">
 
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 
-  <style>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image"></script>
 
-    body{
-      background:black;
-      color:white;
-      text-align:center;
-      font-family:Arial;
-      margin:0;
-    }
+<style>
 
-    canvas{
-      width:100vw !important;
-      height:auto !important;
-    }
+body{
+  background:black;
+  color:white;
+  text-align:center;
+  font-family:Arial;
+}
 
-    #result{
-      font-size:40px;
-      padding:20px;
-    }
+canvas{
+  width:90vw !important;
+  height:auto !important;
+}
 
-  </style>
+#result{
+  font-size:30px;
+  margin:20px;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<h1>AI Camera</h1>
+<h1>AI Camera Debug</h1>
 
 <div id="result">
-Loading...
+Starting...
 </div>
 
 <div id="webcam-container"></div>
@@ -50,72 +50,90 @@ const URL =
 let model;
 let webcam;
 
-async function init() {
+async function init(){
 
-  model = await tmImage.load(
-    URL + "model.json",
-    URL + "metadata.json"
-  );
+try{
 
-  webcam = new tmImage.Webcam(
-    400,
-    400,
-    false
-  );
+document.getElementById("result")
+.innerHTML = "Loading Model...";
 
-  await webcam.setup();
+model = await tmImage.load(
+  URL + "model.json",
+  URL + "metadata.json"
+);
 
-  await webcam.play();
+document.getElementById("result")
+.innerHTML = "Opening Camera...";
 
-  document.getElementById(
-    "webcam-container"
-  ).appendChild(webcam.canvas);
+webcam = new tmImage.Webcam(
+  400,
+  400,
+  false
+);
 
-  window.requestAnimationFrame(loop);
+await webcam.setup();
+
+await webcam.play();
+
+document.getElementById(
+  "webcam-container"
+).appendChild(webcam.canvas);
+
+document.getElementById("result")
+.innerHTML = "Camera Success";
+
+window.requestAnimationFrame(loop);
+
+}catch(e){
+
+document.getElementById("result")
+.innerHTML =
+"ERROR:<br><br>" + e;
+
+console.error(e);
+
 }
 
-async function loop() {
-
-  webcam.update();
-
-  await predict();
-
-  window.requestAnimationFrame(loop);
 }
 
-async function predict() {
+async function loop(){
 
-  const prediction =
-    await model.predict(webcam.canvas);
+webcam.update();
 
-  let highest = prediction[0];
+await predict();
 
-  for(let i=1;i<prediction.length;i++){
+window.requestAnimationFrame(loop);
 
-    if(
-      prediction[i].probability >
-      highest.probability
-    ){
-      highest = prediction[i];
-    }
-  }
+}
 
-  let result =
-    highest.className +
-    " " +
-    (highest.probability * 100)
-    .toFixed(1) +
-    "%";
+async function predict(){
 
-  document.getElementById(
-    "result"
-  ).innerHTML = result;
+const prediction =
+await model.predict(webcam.canvas);
 
-  if(window.AppInventor){
+let highest = prediction[0];
 
-    window.AppInventor
-      .setWebViewString(result);
-  }
+for(let i=1;i<prediction.length;i++){
+
+if(
+prediction[i].probability >
+highest.probability
+){
+highest = prediction[i];
+}
+
+}
+
+let result =
+highest.className +
+" " +
+(highest.probability * 100)
+.toFixed(1) +
+"%";
+
+document.getElementById("result")
+.innerHTML = result;
+
 }
 
 init();
@@ -123,4 +141,5 @@ init();
 </script>
 
 </body>
+
 </html>
