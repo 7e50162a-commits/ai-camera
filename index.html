@@ -1,22 +1,54 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
+
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image"></script>
+
+  <style>
+
+    body{
+      background:black;
+      color:white;
+      text-align:center;
+      font-family:Arial;
+      margin:0;
+    }
+
+    canvas{
+      width:100vw !important;
+      height:auto !important;
+    }
+
+    #result{
+      font-size:40px;
+      padding:20px;
+    }
+
+  </style>
+
 </head>
 
 <body>
 
-<h2 id="result">Loading...</h2>
+<h1>AI Camera</h1>
 
-<video id="webcam" autoplay playsinline width="300" height="300"></video>
+<div id="result">
+Loading...
+</div>
+
+<div id="webcam-container"></div>
 
 <script>
 
-const URL = "https://teachablemachine.withgoogle.com/models/sshA3Fu2x/";
+const URL =
+"https://teachablemachine.withgoogle.com/models/sshA3Fu2x/";
 
-let model, webcam, maxPredictions;
+let model;
+let webcam;
 
 async function init() {
 
@@ -25,22 +57,29 @@ async function init() {
     URL + "metadata.json"
   );
 
-  maxPredictions = model.getTotalClasses();
-
-  webcam = new tmImage.Webcam(300,300,false);
+  webcam = new tmImage.Webcam(
+    400,
+    400,
+    false
+  );
 
   await webcam.setup();
+
   await webcam.play();
 
-  window.requestAnimationFrame(loop);
+  document.getElementById(
+    "webcam-container"
+  ).appendChild(webcam.canvas);
 
-  document.getElementById("webcam")
-    .appendChild(webcam.canvas);
+  window.requestAnimationFrame(loop);
 }
 
 async function loop() {
+
   webcam.update();
+
   await predict();
+
   window.requestAnimationFrame(loop);
 }
 
@@ -51,9 +90,12 @@ async function predict() {
 
   let highest = prediction[0];
 
-  for (let i = 1; i < prediction.length; i++) {
-    if (prediction[i].probability >
-        highest.probability) {
+  for(let i=1;i<prediction.length;i++){
+
+    if(
+      prediction[i].probability >
+      highest.probability
+    ){
       highest = prediction[i];
     }
   }
@@ -61,14 +103,18 @@ async function predict() {
   let result =
     highest.className +
     " " +
-    (highest.probability * 100).toFixed(1) +
+    (highest.probability * 100)
+    .toFixed(1) +
     "%";
 
-  document.getElementById("result")
-    .innerHTML = result;
+  document.getElementById(
+    "result"
+  ).innerHTML = result;
 
-  if (window.AppInventor) {
-    window.AppInventor.setWebViewString(result);
+  if(window.AppInventor){
+
+    window.AppInventor
+      .setWebViewString(result);
   }
 }
 
