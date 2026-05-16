@@ -19,19 +19,14 @@ body{
     font-family:Arial;
 }
 
-h1{
-    margin-top:20px;
+video{
+    width:100vw;
+    height:auto;
 }
 
 #result{
     font-size:35px;
-    margin:20px;
-}
-
-canvas{
-    width:95vw !important;
-    height:auto !important;
-    border-radius:20px;
+    padding:20px;
 }
 
 </style>
@@ -40,13 +35,18 @@ canvas{
 
 <body>
 
-<h1>AI Camera Debug</h1>
+<h1>AI Camera</h1>
 
 <div id="result">
 Starting...
 </div>
 
-<div id="webcam-container"></div>
+<video
+id="webcam"
+autoplay
+playsinline
+muted
+></video>
 
 <script>
 
@@ -54,7 +54,7 @@ const URL =
 "https://teachablemachine.withgoogle.com/models/sshA3Fu2x/";
 
 let model;
-let webcam;
+let video;
 
 async function init(){
 
@@ -69,21 +69,29 @@ model = await tmImage.load(
 );
 
 document.getElementById("result")
-.innerHTML = "Opening Camera...";
+.innerHTML = "Opening Back Camera...";
 
-webcam = new tmImage.Webcam(
-    400,
-    400,
-    false
-);
+video =
+document.getElementById("webcam");
 
-await webcam.setup();
+const stream =
+await navigator.mediaDevices.getUserMedia({
 
-await webcam.play();
+video:{
 
-document.getElementById(
-    "webcam-container"
-).appendChild(webcam.canvas);
+facingMode:{
+exact:"environment"
+}
+
+},
+
+audio:false
+
+});
+
+video.srcObject = stream;
+
+await video.play();
 
 document.getElementById("result")
 .innerHTML = "Camera Success";
@@ -104,8 +112,6 @@ console.error(e);
 
 async function loop(){
 
-webcam.update();
-
 await predict();
 
 window.requestAnimationFrame(loop);
@@ -115,18 +121,18 @@ window.requestAnimationFrame(loop);
 async function predict(){
 
 const prediction =
-await model.predict(webcam.canvas);
+await model.predict(video);
 
 let highest = prediction[0];
 
 for(let i=1;i<prediction.length;i++){
 
-    if(
-        prediction[i].probability >
-        highest.probability
-    ){
-        highest = prediction[i];
-    }
+if(
+prediction[i].probability >
+highest.probability
+){
+highest = prediction[i];
+}
 
 }
 
