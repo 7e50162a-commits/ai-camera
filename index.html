@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image"></script>
+</head>
+
+<body>
+
+<h2 id="result">Loading...</h2>
+
+<video id="webcam" autoplay playsinline width="300" height="300"></video>
+
+<script>
+
+const URL = "https://teachablemachine.withgoogle.com/models/sshA3Fu2x/";
+
+let model, webcam, maxPredictions;
+
+async function init() {
+
+  model = await tmImage.load(
+    URL + "model.json",
+    URL + "metadata.json"
+  );
+
+  maxPredictions = model.getTotalClasses();
+
+  webcam = new tmImage.Webcam(300,300,false);
+
+  await webcam.setup();
+  await webcam.play();
+
+  window.requestAnimationFrame(loop);
+
+  document.getElementById("webcam")
+    .appendChild(webcam.canvas);
+}
+
+async function loop() {
+  webcam.update();
+  await predict();
+  window.requestAnimationFrame(loop);
+}
+
+async function predict() {
+
+  const prediction =
+    await model.predict(webcam.canvas);
+
+  let highest = prediction[0];
+
+  for (let i = 1; i < prediction.length; i++) {
+    if (prediction[i].probability >
+        highest.probability) {
+      highest = prediction[i];
+    }
+  }
+
+  let result =
+    highest.className +
+    " " +
+    (highest.probability * 100).toFixed(1) +
+    "%";
+
+  document.getElementById("result")
+    .innerHTML = result;
+
+  if (window.AppInventor) {
+    window.AppInventor.setWebViewString(result);
+  }
+}
+
+init();
+
+</script>
+
+</body>
+</html>
