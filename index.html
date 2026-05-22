@@ -1,5 +1,129 @@
-<script>
-<!--
-document.write(unescape("%3C%21DOCTYPE%20html%3E%0A%3Chtml%3E%0A%0A%3Chead%3E%0A%0A%3Cmeta%20charset%3D%22UTF-8%22%3E%0A%0A%3Cscript%20src%3D%22https%3A//cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js%22%3E%3C/script%3E%0A%0A%3Cscript%20src%3D%22https%3A//cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js%22%3E%3C/script%3E%0A%0A%3Cstyle%3E%0A%0Abody%7B%0A%20%20%20%20margin%3A0%3B%0A%20%20%20%20background%3Ablack%3B%0A%20%20%20%20color%3Awhite%3B%0A%20%20%20%20text-align%3Acenter%3B%0A%20%20%20%20font-family%3AArial%3B%0A%7D%0A%0Avideo%7B%0A%20%20%20%20width%3A100vw%3B%0A%20%20%20%20height%3Aauto%3B%0A%7D%0A%0A%23result%7B%0A%20%20%20%20font-size%3A35px%3B%0A%20%20%20%20padding%3A20px%3B%0A%7D%0A%0A%3C/style%3E%0A%0A%3C/head%3E%0A%0A%3Cbody%3E%0A%0A%3Ch1%3EAI%20Camera%3C/h1%3E%0A%0A%3Cdiv%20id%3D%22result%22%3E%0AStarting...%0A%3C/div%3E%0A%0A%3Cvideo%0Aid%3D%22webcam%22%0Aautoplay%0Aplaysinline%0Amuted%0A%3E%3C/video%3E%0A%0A%3Cscript%3E%0A%0Aconst%20URL%20%3D%0A%22https%3A//teachablemachine.withgoogle.com/models/6T5mxKzzf/%22%3B%0A%0Alet%20model%3B%0Alet%20video%3B%0A%0Aasync%20function%20init%28%29%7B%0A%0Atry%7B%0A%0Adocument.getElementById%28%22result%22%29%0A.innerHTML%20%3D%20%22Loading%20Model...%22%3B%0A%0Amodel%20%3D%20await%20tmImage.load%28%0A%20%20%20%20URL%20+%20%22model.json%22%2C%0A%20%20%20%20URL%20+%20%22metadata.json%22%0A%29%3B%0A%0Adocument.getElementById%28%22result%22%29%0A.innerHTML%20%3D%20%22Opening%20Back%20Camera...%22%3B%0A%0Avideo%20%3D%0Adocument.getElementById%28%22webcam%22%29%3B%0A%0Aconst%20stream%20%3D%0Aawait%20navigator.mediaDevices.getUserMedia%28%7B%0A%0Avideo%3A%7B%0A%0AfacingMode%3A%7B%0Aexact%3A%22environment%22%0A%7D%0A%0A%7D%2C%0A%0Aaudio%3Afalse%0A%0A%7D%29%3B%0A%0Avideo.srcObject%20%3D%20stream%3B%0A%0Aawait%20video.play%28%29%3B%0A%0Adocument.getElementById%28%22result%22%29%0A.innerHTML%20%3D%20%22Camera%20Success%22%3B%0A%0Awindow.requestAnimationFrame%28loop%29%3B%0A%0A%7Dcatch%28e%29%7B%0A%0Adocument.getElementById%28%22result%22%29%0A.innerHTML%20%3D%0A%22ERROR%3A%3Cbr%3E%3Cbr%3E%22%20+%20e%3B%0A%0Aconsole.error%28e%29%3B%0A%0A%7D%0A%0A%7D%0A%0Aasync%20function%20loop%28%29%7B%0A%0Aawait%20predict%28%29%3B%0A%0Awindow.requestAnimationFrame%28loop%29%3B%0A%0A%7D%0A%0Aasync%20function%20predict%28%29%7B%0A%0Aconst%20prediction%20%3D%0Aawait%20model.predict%28video%29%3B%0A%0Alet%20highest%20%3D%20prediction%5B0%5D%3B%0A%0Afor%28let%20i%3D1%3Bi%3Cprediction.length%3Bi++%29%7B%0A%0Aif%28%0Aprediction%5Bi%5D.probability%20%3E%0Ahighest.probability%0A%29%7B%0Ahighest%20%3D%20prediction%5Bi%5D%3B%0A%7D%0A%0A%7D%0A%0Alet%20result%20%3D%0Ahighest.className%20+%0A%22%20%22%20+%0A%28highest.probability%20*%20100%29%0A.toFixed%281%29%20+%0A%22%25%22%3B%0A%0Adocument.getElementById%28%22result%22%29%0A.innerHTML%20%3D%20result%3B%0A%0Aif%28window.AppInventor%29%7B%0A%0Awindow.AppInventor%0A.setWebViewString%28result%29%3B%0A%0A%7D%0A%0A%7D%0A%0Ainit%28%29%3B%0A%0A%3C/script%3E%0A%0A%3C/body%3E%0A%0A%3C/html%3E"));
-//-->
-</script>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- 確保手機瀏覽器能正確縮放畫面 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            background: black;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        video {
+            width: 100vw;
+            height: auto;
+            /* 讓視訊畫面在還沒載入前不要顯示多餘的白色底塊 */
+            background: black; 
+        }
+
+        #result {
+            font-size: 35px;
+            padding: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>AI Camera</h1>
+
+    <div id="result">
+        Starting...
+    </div>
+
+    <video id="webcam" autoplay playsinline muted></video>
+
+    <script>
+        // 請確保你的 Teachable Machine 模型網址最後有加上斜線 "/"
+        const URL = "https://teachablemachine.withgoogle.com/models/6T5mxKzzf/";
+
+        let model;
+        let video;
+
+        async function init() {
+            try {
+                document.getElementById("result").innerHTML = "Initializing AI & Camera...";
+                video = document.getElementById("webcam");
+
+                // 【效能優化】使用 Promise.all 讓「模型下載」與「開起相機」同時進行，大幅縮短等待時間
+                const [loadedModel, stream] = await Promise.all([
+                    // 1. 同步載入模型
+                    tmImage.load(URL + "model.json", URL + "metadata.json"),
+
+                    // 2. 同步請求相機權限與串流
+                    navigator.mediaDevices.getUserMedia({
+                        video: {
+                            // 將 exact 改為理想值描述，避免瀏覽器因硬體名稱不符而卡住或報錯
+                            facingMode: "environment"
+                        },
+                        audio: false
+                    })
+                ]);
+
+                // 將載入好的模型與串流賦值
+                model = loadedModel;
+                video.srcObject = stream;
+
+                // 【穩定性優化】確保影片的元數據（如解析度）載入完成後再播放，防止畫面阻塞
+                video.onloadedmetadata = async () => {
+                    try {
+                        await video.play();
+                        document.getElementById("result").innerHTML = "AI Camera Ready";
+                        // 開始預測迴圈
+                        window.requestAnimationFrame(loop);
+                    } catch (playError) {
+                        document.getElementById("result").innerHTML = "Playback Error: " + playError;
+                        console.error(playError);
+                    }
+                };
+
+            } catch (e) {
+                document.getElementById("result").innerHTML = "ERROR:<br><br>" + e;
+                console.error(e);
+            }
+        }
+
+        async function loop() {
+            await predict();
+            window.requestAnimationFrame(loop);
+        }
+
+        async function predict() {
+            // 確保影片已經準備好且有畫面寬高，才進行預測，避免產生空數據報錯
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                const prediction = await model.predict(video);
+                
+                let highest = prediction[0];
+
+                for (let i = 1; i < prediction.length; i++) {
+                    if (prediction[i].probability > highest.probability) {
+                        highest = prediction[i];
+                    }
+                }
+
+                let result = highest.className + " " + (highest.probability * 100).toFixed(1) + "%";
+
+                document.getElementById("result").innerHTML = result;
+
+                if (window.AppInventor) {
+                    window.AppInventor.setWebViewString(result);
+                }
+            }
+        }
+
+        // 啟動程式
+        init();
+    </script>
+
+</body>
+
+</html>
